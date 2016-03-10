@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.2 (https://github.com/novus/nvd3) 2016-01-24 */
+/* nvd3 version 1.8.2 (https://github.com/novus/nvd3) 2016-03-10 */
 (function(){
 
 // set up main nv object
@@ -12410,7 +12410,7 @@ nv.models.sparklinePlus = function() {
             }
 
             gEnter.select('.nv-hoverArea').append('rect')
-                .on('mousemove', sparklineHover)
+                .on('mousemove', function() {return sparklineHover} (data))
                 .on('click', function() { paused = !paused })
                 .on('mouseout', function() { index = []; updateValueLine(); });
 
@@ -12420,7 +12420,7 @@ nv.models.sparklinePlus = function() {
                 .attr('height', availableHeight + margin.top);
 
             //index is currently global (within the chart), may or may not keep it that way
-            function updateValueLine() {
+            function updateValueLine(data) {
                 if (paused) return;
 
                 var hoverValue = g.selectAll('.nv-hoverValue').data(index);
@@ -12469,7 +12469,7 @@ nv.models.sparklinePlus = function() {
                     .text(yTickFormat(sparkline.y()(data[index[0]], index[0])));
             }
 
-            function sparklineHover() {
+            function sparklineHover(data) {
                 if (paused) return;
 
                 var pos = d3.mouse(this)[0] - margin.left;
@@ -12487,7 +12487,7 @@ nv.models.sparklinePlus = function() {
                 }
 
                 index = [getClosestIndex(data, Math.round(x.invert(pos)))];
-                updateValueLine();
+                updateValueLine(data);
             }
 
         });
