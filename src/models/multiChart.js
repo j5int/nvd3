@@ -19,15 +19,16 @@ nv.models.multiChart = function() {
         useVoronoi = true,
         interactiveLayer = nv.interactiveGuideline(),
         useInteractiveGuideline = false,
-        legendRightAxisHint = ' (right axis)'
+        legendRightAxisHint = ' (right axis)',
+        xScale = d3.scale.linear(),
+        xAxis = nv.models.axis().scale(xScale).orient('bottom').tickPadding(5)
         ;
 
     //============================================================
     // Private Variables
     //------------------------------------------------------------
 
-    var x = d3.scale.linear(),
-        yScale1 = d3.scale.linear(),
+    var yScale1 = d3.scale.linear(),
         yScale2 = d3.scale.linear(),
 
         lines1 = nv.models.line().yScale(yScale1),
@@ -42,7 +43,6 @@ nv.models.multiChart = function() {
         stack1 = nv.models.stackedArea().yScale(yScale1),
         stack2 = nv.models.stackedArea().yScale(yScale2),
 
-        xAxis = nv.models.axis().scale(x).orient('bottom').tickPadding(5),
         yAxis1 = nv.models.axis().scale(yScale1).orient('left'),
         yAxis2 = nv.models.axis().scale(yScale2).orient('right'),
 
@@ -57,7 +57,8 @@ nv.models.multiChart = function() {
             var container = d3.select(this),
                 that = this;
             nv.utils.initSVG(container);
-
+            var x = chart.xScale()
+            xAxis = chart.xAxis.scale(x)
             chart.update = function() { container.transition().call(chart); };
             chart.container = this;
 
@@ -501,6 +502,7 @@ nv.models.multiChart = function() {
         noData:    {get: function(){return noData;}, set: function(_){noData=_;}},
         interpolate:    {get: function(){return interpolate;}, set: function(_){interpolate=_;}},
         legendRightAxisHint:    {get: function(){return legendRightAxisHint;}, set: function(_){legendRightAxisHint=_;}},
+        xScale:    {get: function(){return xScale;}, set: function(_){xScale=_;}},
 
         // options that require extra logic in the setter
         margin: {get: function(){return margin;}, set: function(_){
