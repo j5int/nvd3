@@ -374,8 +374,15 @@ nv.models.multiChart = function() {
                 interactiveLayer.dispatch.on('elementMousemove', function(e) {
                     clearHighlights();
                     var singlePoint, pointIndex, pointXLocation, allData = [];
+                    var seriesChartIndexes = {}
                     data
                     .filter(function(series, i) {
+                        var chartName = (series.type == 'area' ? 'stack' : series.type + 's') + series.yAxis
+                      if (!series.disabled) {
+                        var seriesIndex = seriesChartIndexes[chartName]!=undefined ? seriesChartIndexes[chartName] + 1 : 0
+                        seriesChartIndexes[chartName] = seriesIndex
+                        series.activeSeriesIndex = seriesIndex;
+                      }
                         series.seriesIndex = i;
                         return !series.disabled;
                     })
@@ -388,8 +395,9 @@ nv.models.multiChart = function() {
                         pointIndex = nv.interactiveBisect(currentValues, e.pointXValue, chart.x());
                         var point = currentValues[pointIndex];
                         var pointYValue = chart.y()(point, pointIndex);
-                        if (pointYValue !== null) {
-                            highlightPoint(i, pointIndex, true);
+                        var chartName = (series.type == 'area' ? 'stack' : series.type + 's') + series.yAxis
+                        if (pointYValue !== null && chart[chartName].highlightPoint) {
+                          chart[chartName].highlightPoint(series.activeSeriesIndex, pointIndex, true);
                         }
                         if (point === undefined) return;
                         if (singlePoint === undefined) singlePoint = point;
