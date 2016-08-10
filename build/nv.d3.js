@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.4 (https://github.com/novus/nvd3) 2016-07-03 */
+/* nvd3 version 1.8.4 (https://github.com/novus/nvd3) 2016-08-10 */
 (function(){
 
 // set up main nv object
@@ -9565,15 +9565,16 @@ nv.models.multiChart = function() {
         useVoronoi = true,
         interactiveLayer = nv.interactiveGuideline(),
         useInteractiveGuideline = false,
-        legendRightAxisHint = ' (right axis)'
+        legendRightAxisHint = ' (right axis)',
+        xScale = d3.scale.linear(),
+        xAxis = nv.models.axis().scale(xScale).orient('bottom').tickPadding(5)
         ;
 
     //============================================================
     // Private Variables
     //------------------------------------------------------------
 
-    var x = d3.scale.linear(),
-        yScale1 = d3.scale.linear(),
+    var yScale1 = d3.scale.linear(),
         yScale2 = d3.scale.linear(),
 
         lines1 = nv.models.line().yScale(yScale1),
@@ -9588,7 +9589,6 @@ nv.models.multiChart = function() {
         stack1 = nv.models.stackedArea().yScale(yScale1),
         stack2 = nv.models.stackedArea().yScale(yScale2),
 
-        xAxis = nv.models.axis().scale(x).orient('bottom').tickPadding(5),
         yAxis1 = nv.models.axis().scale(yScale1).orient('left'),
         yAxis2 = nv.models.axis().scale(yScale2).orient('right'),
 
@@ -9603,7 +9603,8 @@ nv.models.multiChart = function() {
             var container = d3.select(this),
                 that = this;
             nv.utils.initSVG(container);
-
+            var x = chart.xScale()
+            xAxis = chart.xAxis.scale(x)
             chart.update = function() { container.transition().call(chart); };
             chart.container = this;
 
@@ -9936,8 +9937,15 @@ nv.models.multiChart = function() {
                 interactiveLayer.dispatch.on('elementMousemove', function(e) {
                     clearHighlights();
                     var singlePoint, pointIndex, pointXLocation, allData = [];
+                    var seriesChartIndexes = {}
                     data
                     .filter(function(series, i) {
+                        var chartName = (series.type == 'area' ? 'stack' : series.type + 's') + series.yAxis
+                      if (!series.disabled) {
+                        var seriesIndex = seriesChartIndexes[chartName]!=undefined ? seriesChartIndexes[chartName] + 1 : 0
+                        seriesChartIndexes[chartName] = seriesIndex
+                        series.activeSeriesIndex = seriesIndex;
+                      }
                         series.seriesIndex = i;
                         return !series.disabled;
                     })
@@ -9950,8 +9958,9 @@ nv.models.multiChart = function() {
                         pointIndex = nv.interactiveBisect(currentValues, e.pointXValue, chart.x());
                         var point = currentValues[pointIndex];
                         var pointYValue = chart.y()(point, pointIndex);
-                        if (pointYValue !== null) {
-                            highlightPoint(i, pointIndex, true);
+                        var chartName = (series.type == 'area' ? 'stack' : series.type + 's') + series.yAxis
+                        if (pointYValue !== null && chart[chartName].highlightPoint) {
+                          chart[chartName].highlightPoint(series.activeSeriesIndex, pointIndex, true);
                         }
                         if (point === undefined) return;
                         if (singlePoint === undefined) singlePoint = point;
@@ -10068,6 +10077,7 @@ nv.models.multiChart = function() {
         noData:    {get: function(){return noData;}, set: function(_){noData=_;}},
         interpolate:    {get: function(){return interpolate;}, set: function(_){interpolate=_;}},
         legendRightAxisHint:    {get: function(){return legendRightAxisHint;}, set: function(_){legendRightAxisHint=_;}},
+        xScale:    {get: function(){return xScale;}, set: function(_){xScale=_;}},
 
         // options that require extra logic in the setter
         margin: {get: function(){return margin;}, set: function(_){
@@ -13081,7 +13091,7 @@ nv.models.sparklinePlus = function() {
             }
 
             gEnter.select('.nv-hoverArea').append('rect')
-                .on('mousemove', sparklineHover)
+                .on('mousemove', function() {return sparklineHover} (data))
                 .on('click', function() { paused = !paused })
                 .on('mouseout', function() { index = []; updateValueLine(); });
 
@@ -13091,7 +13101,7 @@ nv.models.sparklinePlus = function() {
                 .attr('height', availableHeight + margin.top);
 
             //index is currently global (within the chart), may or may not keep it that way
-            function updateValueLine() {
+            function updateValueLine(data) {
                 if (paused) return;
 
                 var hoverValue = g.selectAll('.nv-hoverValue').data(index);
@@ -13140,7 +13150,7 @@ nv.models.sparklinePlus = function() {
                     .text(yTickFormat(sparkline.y()(data[index[0]], index[0])));
             }
 
-            function sparklineHover() {
+            function sparklineHover(data) {
                 if (paused) return;
 
                 var pos = d3.mouse(this)[0] - margin.left;
@@ -13158,7 +13168,7 @@ nv.models.sparklinePlus = function() {
                 }
 
                 index = [getClosestIndex(data, Math.round(x.invert(pos)))];
-                updateValueLine();
+                updateValueLine(data);
             }
 
         });
