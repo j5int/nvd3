@@ -253,9 +253,9 @@ nv.models.legend = function() {
                 series
                     .attr('transform', function(d, i) {
                         var textNode = d3.select(this).select('text');
-
                         var length = (textNode.node().getComputedTextLength ? textNode.node().getComputedTextLength()
                             : nv.utils.calcApproxTextWidth(textNode)) + padding;
+                        
                         xpos = newxpos;
 
                         if (width < margin.left + margin.right + xpos + length) {
