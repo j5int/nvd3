@@ -1,4 +1,4 @@
-/* nvd3 version 1.8.4 (https://github.com/novus/nvd3) 2016-08-10 */
+/* nvd3 version v1.8.4-j5int.2 (https://github.com/novus/nvd3) 2017-03-09 */
 (function(){
 
 // set up main nv object
@@ -198,7 +198,7 @@ nv.interactiveGuideline = function() {
         ,   showGuideLine = true
         ,   svgContainer = null // Must pass the chart's svg, we'll use its mousemove event.
         ,   tooltip = nv.models.tooltip()
-        ,   isMSIE =  window.ActiveXObject// Checkt if IE by looking for activeX. (excludes IE11)
+        ,   isMSIE =  typeof window !== 'undefined' && window.ActiveXObject// Checkt if IE by looking for activeX. (excludes IE11)
     ;
 
     tooltip
@@ -6330,7 +6330,10 @@ nv.models.legend = function() {
                     xpos;
                 series
                     .attr('transform', function(d, i) {
-                        var length = d3.select(this).select('text').node().getComputedTextLength() + padding;
+                        var textNode = d3.select(this).select('text');
+                        var length = (textNode.node().getComputedTextLength ? textNode.node().getComputedTextLength()
+                            : nv.utils.calcApproxTextWidth(textNode)) + padding;
+                        
                         xpos = newxpos;
 
                         if (width < margin.left + margin.right + xpos + length) {
@@ -14717,5 +14720,5 @@ nv.models.sunburstChart = function() {
 
 };
 
-nv.version = "1.8.4";
+nv.version = "v1.8.4-j5int.2";
 })();
