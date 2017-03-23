@@ -300,10 +300,18 @@ nv.models.axis = function() {
                 wrap.selectAll('g.nv-axisMaxMin')
                     .each(function(d,i) {
                         try {
-                            if (i) // i== 1, max position
-                                maxMinRange.push(scale(d) - this.getBoundingClientRect().width - 4);  //assuming the max and min labels are as wide as the next tick (with an extra 4 pixels just in case)
-                            else // i==0, min position
-                                maxMinRange.push(scale(d) + this.getBoundingClientRect().width + 4)
+                            var width = this.getBoundingClientRect().width
+                            if (!(width && width > 0)) {
+                                // Fallback if jsdom is in use and getBoundingClientRect().width returns 0
+                                var _width = nv.utils.calcApproxTextWidth(d3.select(this).select('text'))
+                                if (_width > 0) width = _width
+                            }
+
+                            if (i) {// i== 1, max position
+                              maxMinRange.push(scale(d) - width - 4);  //assuming the max and min labels are as wide as the next tick (with an extra 4 pixels just in case)
+                            } else {// i==0, min position
+                              maxMinRange.push(scale(d) + width + 4);
+                            }
                         }catch (err) {
                             if (i) // i== 1, max position
                                 maxMinRange.push(scale(d) - 4);  //assuming the max and min labels are as wide as the next tick (with an extra 4 pixels just in case)
