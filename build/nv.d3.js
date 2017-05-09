@@ -1,4 +1,4 @@
-/* nvd3 version v1.8.4-j5int.2 (https://github.com/novus/nvd3) 2017-03-23 */
+/* nvd3 version v1.8.4-j5int.3 (https://github.com/novus/nvd3) 2017-05-09 */
 (function(){
 
 // set up main nv object
@@ -9990,10 +9990,12 @@ nv.models.multiChart = function() {
                         return d == null ? "N/A" : yAxis.tickFormat()(d);
                     };
 
+                    var defaultHeaderFormatter = function(d, i) {
+                        return xAxis.tickFormat()(d, i);
+                    }
+
                     interactiveLayer.tooltip
-                        .headerFormatter(function(d, i) {
-                            return xAxis.tickFormat()(d, i);
-                        })
+                        .headerFormatter(interactiveLayer.tooltip.headerFormatter() || defaultHeaderFormatter)
                         .valueFormatter(interactiveLayer.tooltip.valueFormatter() || defaultValueFormatter)
                         .data({
                             value: chart.x()( singlePoint,pointIndex ),
@@ -14728,5 +14730,5 @@ nv.models.sunburstChart = function() {
 
 };
 
-nv.version = "v1.8.4-j5int.2";
+nv.version = "v1.8.4-j5int.3";
 })();
