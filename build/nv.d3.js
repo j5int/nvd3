@@ -556,7 +556,7 @@ nv.models.tooltip = function() {
     ;
 
     // Format function for the tooltip values column.
-    var valueFormatter = function(d, i) {
+    var valueFormatter = function(d, i, p) {
         return d;
     };
 
@@ -565,7 +565,7 @@ nv.models.tooltip = function() {
         return d;
     };
 
-    var keyFormatter = function(d, i) {
+    var keyFormatter = function(d, i, p) {
         return d;
     };
 
@@ -608,11 +608,11 @@ nv.models.tooltip = function() {
         trowEnter.append("td")
             .classed("key",true)
             .classed("total",function(p) { return !!p.total})
-            .html(function(p, i) { return keyFormatter(p.key, i)});
+            .html(function(p, i) { return keyFormatter(p.key, i, p)});
 
         trowEnter.append("td")
             .classed("value",true)
-            .html(function(p, i) { return valueFormatter(p.value, i) });
+            .html(function(p, i) { return valueFormatter(p.value, i, p) });
 
         trowEnter.filter(function (p,i) { return p.percent !== undefined }).append("td")
             .classed("percent", true)
