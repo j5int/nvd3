@@ -433,10 +433,12 @@ nv.models.multiChart = function() {
                         return d == null ? "N/A" : yAxis.tickFormat()(d);
                     };
 
+                    var defaultHeaderFormatter = function(d, i) {
+                        return xAxis.tickFormat()(d, i);
+                    }
+
                     interactiveLayer.tooltip
-                        .headerFormatter(function(d, i) {
-                            return xAxis.tickFormat()(d, i);
-                        })
+                        .headerFormatter(interactiveLayer.tooltip.headerFormatter() || defaultHeaderFormatter)
                         .valueFormatter(interactiveLayer.tooltip.valueFormatter() || defaultValueFormatter)
                         .data({
                             value: chart.x()( singlePoint,pointIndex ),
